@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мои заявки — Service Center</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="logo">Service Center</div>
+        <div>
+            <span style="font-size:14px;">Привет, <b id="userName">—</b></span>
+            <button id="logoutBtn">Выйти</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h2>Создать заявку</h2>
+            <form id="createOrderForm" novalidate>
+                <div class="form-group">
+                    <label for="title">Название</label>
+                    <input type="text" id="title" name="title" required>
+                    <div class="error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Описание проблемы</label>
+                    <textarea id="description" name="description" required></textarea>
+                    <div class="error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="category">Категория</label>
+                    <select id="category" name="category" required>
+                        <option value="">— выберите —</option>
+                        <option value="Ремонт">Ремонт</option>
+                        <option value="Диагностика">Диагностика</option>
+                        <option value="Настройка">Настройка</option>
+                        <option value="Консультация">Консультация</option>
+                    </select>
+                    <div class="error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="price">Ожидаемая стоимость (₽)</label>
+                    <input type="number" id="price" name="price" min="0" step="0.01">
+                    <div class="error-message"></div>
+                </div>
+
+                <button type="submit" class="btn">Создать заявку</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>Мои заявки</h2>
+            <div id="ordersList">
+                <div class="empty">Загрузка...</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+# OS
+Thumbs.db
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Логи
+*.log
+
+# Временные файлы
+*.tmp
+~$*
+
+database/config.php 

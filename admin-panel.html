@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель — Service Center</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="logo">Service Center / Админ</div>
+        <div>
+            <span style="font-size:14px;">Привет, <b id="userName">—</b></span>
+            <button id="logoutBtn">Выйти</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h2>Все заявки</h2>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Пользователь</th>
+                            <th>Заявка</th>
+                            <th>Категория</th>
+                            <th>Цена</th>
+                            <th>Статус</th>
+                            <th>Дата</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersTableBody">
+                        <tr><td colspan="7" class="empty">Загрузка...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/admin.js"></script>
+</body>
+</html>
