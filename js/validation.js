@@ -71,6 +71,9 @@ function initRegister(form) {
 
         const data = Object.fromEntries(new FormData(form).entries());
 
+        const submitBtn = form.querySelector('button[type="submit"]');
+        submitBtn.classList.add('loading');          // ← ДОБАВИЛИ
+
         try {
             const res = await fetch('api/register.php', {
                 method: 'POST',
@@ -88,6 +91,8 @@ function initRegister(form) {
             }
         } catch (e) {
             showToast('Ошибка соединения с сервером', 'error');
+        } finally {
+            submitBtn.classList.remove('loading');    // ← ДОБАВИЛИ
         }
     });
 }
@@ -108,6 +113,9 @@ function initLogin(form) {
 
         const data = Object.fromEntries(new FormData(form).entries());
 
+        const submitBtn = form.querySelector('button[type="submit"]');
+        submitBtn.classList.add('loading');          // ← ДОБАВИЛИ
+
         try {
             const res = await fetch('api/login.php', {
                 method: 'POST',
@@ -125,6 +133,8 @@ function initLogin(form) {
             }
         } catch (e) {
             showToast('Ошибка соединения с сервером', 'error');
+        } finally {
+            submitBtn.classList.remove('loading');    // ← ДОБАВИЛИ
         }
     });
 }
@@ -159,7 +169,19 @@ function clearFieldError(input) {
 function showToast(message, type = 'info') {
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
-    toast.textContent = message;
+
+    const icons = {
+        success: '✅',
+        error: '❌',
+        info: 'ℹ️'
+    };
+
+    toast.innerHTML = `
+        <span class="toast-icon">${icons[type] || icons.info}</span>
+        <span class="toast-text">${message}</span>
+        <span class="toast-progress"></span>
+    `;
+
     document.body.appendChild(toast);
 
     setTimeout(() => toast.classList.add('show'), 50);

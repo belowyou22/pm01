@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Админ-панель — Service Center</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
 </head>
 <body>
     <header class="header">
@@ -54,10 +55,11 @@
                             <th>Цена</th>
                             <th>Статус</th>
                             <th>Дата</th>
+                            <th>Действия</th>
                         </tr>
                     </thead>
                     <tbody id="ordersTableBody">
-                        <tr><td colspan="7" class="empty">Загрузка...</td></tr>
+                        <tr><td colspan="8" class="empty">Загрузка...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -66,6 +68,18 @@
             <div class="pagination-wrapper">
                 <div class="pagination-info" id="paginationInfo"></div>
                 <div class="pagination" id="pagination"></div>
+            </div>
+        </div>
+    </div>
+    <!-- Модальное окно истории -->
+    <div class="modal-overlay" id="historyModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>📜 История заявки <span id="modalOrderId"></span></h3>
+                <button class="modal-close" id="modalClose" aria-label="Закрыть">✕</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <div class="empty">Загрузка...</div>
             </div>
         </div>
     </div>

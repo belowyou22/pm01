@@ -289,6 +289,24 @@ a:focus-visible {
     background: var(--surface);
     transition: box-shadow 0.2s, transform 0.2s;
 }
+.order-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 480px) {
+    .order-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .order-footer .btn-history {
+        width: 100%;
+    }
+}
 
 .order-card:hover {
     box-shadow: var(--shadow-lg);
@@ -733,5 +751,167 @@ select.status-select {
         min-width: 32px;
         height: 32px;
         font-size: 13px;
+    }
+}
+/* ============ МОДАЛЬНОЕ ОКНО ============ */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s;
+    padding: 20px;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal {
+    background: var(--surface);
+    border-radius: var(--radius);
+    width: 100%;
+    max-width: 560px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    transform: scale(0.95) translateY(10px);
+    transition: transform 0.25s ease;
+}
+
+.modal-overlay.active .modal {
+    transform: scale(1) translateY(0);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border);
+}
+
+.modal-header h3 {
+    font-size: 17px;
+    font-weight: 600;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: background 0.2s, color 0.2s;
+}
+
+.modal-close:hover {
+    background: var(--bg);
+    color: var(--error);
+}
+
+.modal-body {
+    padding: 20px 22px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+/* Таймлайн истории */
+.history-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.history-item {
+    position: relative;
+    padding: 0 0 20px 24px;
+    border-left: 2px solid var(--border);
+}
+
+.history-item:last-child {
+    border-left-color: transparent;
+    padding-bottom: 0;
+}
+
+.history-item::before {
+    content: '';
+    position: absolute;
+    left: -7px;
+    top: 4px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--primary);
+    border: 2px solid var(--surface);
+    box-shadow: 0 0 0 2px var(--primary);
+}
+
+.history-status {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 20px;
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.history-meta {
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 4px;
+}
+
+.history-comment {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-bottom: 4px;
+}
+
+.history-date {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* Кнопка История */
+.btn-history {
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 5px 10px;
+    font-size: 12px;
+}
+
+.btn-history:hover {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+/* Адаптив модалки */
+@media (max-width: 480px) {
+    .modal {
+        max-height: 90vh;
+    }
+
+    .modal-header,
+    .modal-body {
+        padding: 16px;
+    }
+
+    .btn-history {
+        padding: 4px 8px;
+        font-size: 11px;
     }
 }

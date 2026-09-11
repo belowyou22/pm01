@@ -67,7 +67,13 @@ async function checkSession() {
 
 async function loadOrders() {
     const tbody = document.getElementById('ordersTableBody');
-    tbody.innerHTML = '<tr><td colspan="7" class="empty">Загрузка...</td></tr>';
+    tbody.innerHTML = Array(5).fill(`
+        <tr class="skeleton-row">
+            <td colspan="8">
+                <div class="skeleton skeleton-line full" style="height: 20px;"></div>
+            </td>
+        </tr>
+    `).join('');
 
     const params = new URLSearchParams();
     if (filters.status_id) params.append('status_id', filters.status_id);
@@ -80,7 +86,7 @@ async function loadOrders() {
         const data = await res.json();
 
         if (!data.success) {
-            tbody.innerHTML = '<tr><td colspan="7" class="empty">Ошибка загрузки</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="8" class="empty">Ошибка загрузки</td></tr>';
             return;
         }
 
@@ -91,7 +97,7 @@ async function loadOrders() {
 
         // Пустой результат
         if (data.orders.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" class="empty">Заявок не найдено</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="8" class="empty">Заявок не найдено</td></tr>';
             renderPagination(data.pagination);
             return;
         }
@@ -106,12 +112,21 @@ async function loadOrders() {
                 <td>${o.price > 0 ? o.price + ' ₽' : '—'}</td>
                 <td>${renderStatusSelect(o.id, o.status_id)}</td>
                 <td><small>${formatDate(o.created_at)}</small></td>
+                <td>
+                    <button class="btn btn-sm btn-history" data-order-id="${o.id}" title="История заявки">
+                        📜 История
+                    </button>
+                </td>
             </tr>
         `).join('');
 
         // Навешиваем обработчики
         tbody.querySelectorAll('select.status-select').forEach(sel => {
             sel.addEventListener('change', () => updateStatus(sel.dataset.orderId, sel.value));
+        });
+        // Навешиваем обработчики на кнопки "История"
+        tbody.querySelectorAll('.btn-history').forEach(btn => {
+            btn.addEventListener('click', () => openHistory(btn.dataset.orderId));
         });
 
         // Пагинация
@@ -260,11 +275,103 @@ function formatDate(str) {
 function showToast(message, type = 'info') {
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
-    toast.textContent = message;
+
+    const icons = {
+        success: '✅',
+        error: '❌',
+        info: 'ℹ️'
+    };
+
+    toast.innerHTML = `
+        <span class="toast-icon">${icons[type] || icons.info}</span>
+        <span class="toast-text">${message}</span>
+        <span class="toast-progress"></span>
+    `;
+
     document.body.appendChild(toast);
+
     setTimeout(() => toast.classList.add('show'), 50);
     setTimeout(() => {
         toast.classList.remove('show');
         setTimeout(() => toast.remove(), 300);
     }, 3000);
 }
+/* ================= МОДАЛКА ИСТОРИИ ================= */
+
+async function openHistory(orderId) {
+    const modal = document.getElementById('historyModal');
+    const body = document.getElementById('modalBody');
+    const orderIdSpan = document.getElementById('modalOrderId');
+
+    orderIdSpan.textContent = `#${orderId}`;
+    body.innerHTML = '<div class="empty">Загрузка...</div>';
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden'; // блокируем скролл
+
+    try {
+        const res = await fetch('api/admin.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({action: 'get_history', order_id: orderId})
+        });
+        const data = await res.json();
+
+        if (!data.success || data.history.length === 0) {
+            body.innerHTML = '<div class="empty">История пуста</div>';
+            return;
+        }
+
+        body.innerHTML = `
+            <div class="history-timeline">
+                ${data.history.map(h => `
+                    <div class="history-item">
+                        <div class="history-status" style="background:${h.status_color}">
+                            ${escapeHtml(h.status_name)}
+                        </div>
+                        <div class="history-meta">
+                            <b>${escapeHtml(h.admin_name)}</b> (${escapeHtml(h.admin_login)})
+                        </div>
+                        <div class="history-comment">
+                            ${escapeHtml(h.comment || '—')}
+                        </div>
+                        <div class="history-date">
+                            🕒 ${formatDate(h.created_at)}
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    } catch (e) {
+        body.innerHTML = '<div class="empty">Ошибка загрузки истории</div>';
+    }
+}
+
+function closeHistory() {
+    const modal = document.getElementById('historyModal');
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+// Закрытие модалки
+document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('historyModal');
+    const closeBtn = document.getElementById('modalClose');
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeHistory);
+    }
+
+    if (modal) {
+        // Клик по оверлею (вне модалки) — закрывает
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeHistory();
+        });
+    }
+
+    // Esc закрывает
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeHistory();
+        }
+    });
+});

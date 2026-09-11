@@ -124,33 +124,123 @@ if ($method === 'GET') {
 // ================= POST — смена статуса =================
 if ($method === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true) ?? [];
+    $action = $data['action'] ?? 'change_status';
 
-    if (empty($data['order_id']) || empty($data['status_id'])) {
-        echo json_encode(['success' => false, 'message' => 'Не указан заказ или статус']);
+    // ---------- Смена статуса ----------
+    if ($action === 'change_status') {
+        if (empty($data['order_id']) || empty($data['status_id'])) {
+            echo json_encode(['success' => false, 'message' => 'Не указан заказ или статус']);
+            exit;
+        }
+
+        $order_id = (int)$data['order_id'];
+        $status_id = (int)$data['status_id'];
+        $comment = isset($data['comment']) ? trim($data['comment']) : '';
+        $admin_id = (int)$_SESSION['user_id'];
+
+        // Проверяем, что статус существует
+        $check = $conn->prepare("SELECT id, name FROM statuses WHERE id = ?");
+        $check->bind_param('i', $status_id);
+        $check->execute();
+        $statusResult = $check->get_result();
+
+        if ($statusResult->num_rows === 0) {
+            echo json_encode(['success' => false, 'message' => 'Статус не найден']);
+            exit;
+        }
+        $statusRow = $statusResult->fetch_assoc();
+        $check->close();
+
+        // Получаем текущий статус заявки
+        $cur = $conn->prepare("SELECT status_id FROM orders WHERE id = ?");
+        $cur->bind_param('i', $order_id);
+        $cur->execute();
+        $curResult = $cur->get_result();
+
+        if ($curResult->num_rows === 0) {
+            echo json_encode(['success' => false, 'message' => 'Заявка не найдена']);
+            exit;
+        }
+        $oldStatusId = (int)$curResult->fetch_assoc()['status_id'];
+        $cur->close();
+
+        // Если статус не изменился — выходим
+        if ($oldStatusId === $status_id) {
+            echo json_encode(['success' => true, 'message' => 'Статус не изменился']);
+            exit;
+        }
+
+        // Транзакция: обновляем статус + пишем в историю
+        $conn->begin_transaction();
+
+        try {
+            $stmt = $conn->prepare("UPDATE orders SET status_id = ? WHERE id = ?");
+            $stmt->bind_param('ii', $status_id, $order_id);
+            $stmt->execute();
+            $stmt->close();
+
+            $histComment = $comment !== ''
+                ? $comment
+                : 'Статус изменён на «' . $statusRow['name'] . '»';
+
+            $hist = $conn->prepare(
+                "INSERT INTO order_status_history (order_id, status_id, changed_by, comment)
+                 VALUES (?, ?, ?, ?)"
+            );
+            $hist->bind_param('iiis', $order_id, $status_id, $admin_id, $histComment);
+            $hist->execute();
+            $hist->close();
+
+            $conn->commit();
+
+            echo json_encode([
+                'success' => true,
+                'message' => 'Статус обновлён: ' . $statusRow['name']
+            ], JSON_UNESCAPED_UNICODE);
+        } catch (Exception $e) {
+            $conn->rollback();
+            echo json_encode(['success' => false, 'message' => 'Ошибка обновления']);
+        }
         exit;
     }
 
-    $order_id = (int)$data['order_id'];
-    $status_id = (int)$data['status_id'];
+    // ---------- Получение истории заявки ----------
+    if ($action === 'get_history') {
+        if (empty($data['order_id'])) {
+            echo json_encode(['success' => false, 'message' => 'Не указан заказ']);
+            exit;
+        }
 
-    $check = $conn->prepare("SELECT id FROM statuses WHERE id = ?");
-    $check->bind_param('i', $status_id);
-    $check->execute();
-    if ($check->get_result()->num_rows === 0) {
-        echo json_encode(['success' => false, 'message' => 'Статус не найден']);
+        $order_id = (int)$data['order_id'];
+
+        $sql = "SELECT h.id, h.comment, h.created_at,
+                       s.name AS status_name, s.color AS status_color,
+                       u.full_name AS admin_name, u.login AS admin_login
+                FROM order_status_history h
+                JOIN statuses s ON h.status_id = s.id
+                JOIN users u ON h.changed_by = u.id
+                WHERE h.order_id = ?
+                ORDER BY h.created_at DESC";
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param('i', $order_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $history = [];
+        while ($row = $result->fetch_assoc()) {
+            $history[] = $row;
+        }
+        $stmt->close();
+
+        echo json_encode([
+            'success' => true,
+            'history' => $history
+        ], JSON_UNESCAPED_UNICODE);
         exit;
     }
-    $check->close();
 
-    $stmt = $conn->prepare("UPDATE orders SET status_id = ? WHERE id = ?");
-    $stmt->bind_param('ii', $status_id, $order_id);
-
-    if ($stmt->execute()) {
-        echo json_encode(['success' => true, 'message' => 'Статус обновлён'], JSON_UNESCAPED_UNICODE);
-    } else {
-        echo json_encode(['success' => false, 'message' => 'Ошибка обновления'], JSON_UNESCAPED_UNICODE);
-    }
-    $stmt->close();
+    echo json_encode(['success' => false, 'message' => 'Неизвестное действие']);
     exit;
 }
 
