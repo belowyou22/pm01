@@ -10,20 +10,59 @@
     <header class="header">
         <div class="logo">Service Center</div>
         <div>
-            <a href="login.html">Войти</a>
-            <a href="register.html" class="btn btn-sm">Регистрация</a>
+            <a href="login.html">🔑 Войти</a>
+            <a href="register.html" class="btn btn-sm">📝 Регистрация</a>
         </div>
     </header>
+
+    <!-- Слайдер на всю ширину -->
+    <section class="slider" id="mainSlider" aria-label="Галерея услуг">
+        <div class="slides">
+            <div class="slide">
+                <img src="assets/images/slide1.jpg" alt="Ремонт компьютерной техники">
+                <div class="slide-caption">
+                    <h3>Ремонт компьютерной техники</h3>
+                    <p>Диагностика и ремонт любой сложности</p>
+                </div>
+            </div>
+            <div class="slide">
+                <img src="assets/images/slide2.jpg" alt="Профессиональная диагностика">
+                <div class="slide-caption">
+                    <h3>Профессиональная диагностика</h3>
+                    <p>Точное выявление неисправностей</p>
+                </div>
+            </div>
+            <div class="slide">
+                <img src="assets/images/slide3.jpg" alt="Настройка оборудования">
+                <div class="slide-caption">
+                    <h3>Настройка оборудования</h3>
+                    <p>Установка и конфигурация ПО</p>
+                </div>
+            </div>
+            <div class="slide">
+                <img src="assets/images/slide4.jpg" alt="Консультация специалиста">
+                <div class="slide-caption">
+                    <h3>Консультация специалиста</h3>
+                    <p>Поможем с любым вопросом</p>
+                </div>
+            </div>
+        </div>
+
+        <button class="slider-btn prev" aria-label="Предыдущий слайд">❮</button>
+        <button class="slider-btn next" aria-label="Следующий слайд">❯</button>
+
+        <div class="slider-dots" role="tablist" aria-label="Индикаторы слайдов"></div>
+    </section>
 
     <div class="container">
         <div class="card" style="text-align:center;">
             <h1 style="color:var(--primary); margin-bottom:15px;">Добро пожаловать!</h1>
-            <p style="margin-bottom:25px; color:var(--text-light);">
+            <p style="margin-bottom:25px; color:var(--text-muted);">
                 Оформляйте заявки в сервисный центр онлайн.
                 Быстро, удобно, надёжно.
             </p>
             <a href="register.html" class="btn">Создать аккаунт</a>
-            <a href="login.html" class="btn" style="background:#666; margin-left:10px;">Войти</a>
+            <a href="login.html" class="btn btn-secondary" style="margin-left:10px;">Войти</a>
         </div>
 
         <div class="card">
@@ -36,5 +75,7 @@
             </ol>
         </div>
     </div>
+
+    <script src="js/slider.js"></script>
 </body>
 </html>

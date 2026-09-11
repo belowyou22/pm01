@@ -11,13 +11,38 @@
         <div class="logo">Service Center / Админ</div>
         <div>
             <span style="font-size:14px;">Привет, <b id="userName">—</b></span>
-            <button id="logoutBtn">Выйти</button>
+            <button id="logoutBtn">🚪 Выйти</button>
         </div>
     </header>
 
     <div class="container">
         <div class="card">
-            <h2>Все заявки</h2>
+            <h2>📊 Все заявки</h2>
+
+            <!-- Панель фильтров -->
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="filterSearch">🔍 Поиск</label>
+                    <input type="text" id="filterSearch" placeholder="Название, ФИО или логин...">
+                </div>
+                <div class="filter-group">
+                    <label for="filterStatus">Статус</label>
+                    <select id="filterStatus">
+                        <option value="">Все статусы</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="filterCategory">Категория</label>
+                    <select id="filterCategory">
+                        <option value="">Все категории</option>
+                    </select>
+                </div>
+                <div class="filter-group filter-group-btn">
+                    <button id="resetFilters" class="btn btn-secondary btn-sm">🔄 Сбросить</button>
+                </div>
+            </div>
+
+            <!-- Таблица -->
             <div class="table-wrapper">
                 <table>
                     <thead>
@@ -35,6 +60,12 @@
                         <tr><td colspan="7" class="empty">Загрузка...</td></tr>
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Пагинация -->
+            <div class="pagination-wrapper">
+                <div class="pagination-info" id="paginationInfo"></div>
+                <div class="pagination" id="pagination"></div>
             </div>
         </div>
     </div>
